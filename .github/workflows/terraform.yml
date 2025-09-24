@@ -34,8 +34,10 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Initialize Terraform
-        working-directory: terraform
-        run: terraform init -input=false
+         run: |
+          cd terraform
+          terraform init -input=false
+        
 
       - name: Terraform plan
         working-directory: ${{ github.workspace }}/terraform
