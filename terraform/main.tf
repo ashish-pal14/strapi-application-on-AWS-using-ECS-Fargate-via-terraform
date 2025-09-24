@@ -1,6 +1,15 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 6.14"
+    }
+  }
+  required_version = ">= 1.5.7"
+}
+
 provider "aws" {
   region = var.aws_region
-  version = "~> 6.14"
 }
 
 # get latest Amazon Linux 2 AMI (works across regions)
@@ -53,15 +62,10 @@ resource "aws_instance" "strapi" {
     #!/bin/bash
     set -e
     yum update -y
-    # Install docker (Amazon Linux 2)
     amazon-linux-extras install docker -y || yum install -y docker
     systemctl enable --now docker
     usermod -a -G docker ec2-user
-
-    # Wait for docker to be ready
     sleep 5
-
-    # Pull and run the Strapi image (replace repo and tag via Terraform interpolation)
     docker pull ${var.docker_repo}:${var.image_tag}
     docker stop strapi || true
     docker rm strapi || true
@@ -81,4 +85,3 @@ output "public_ip" {
 output "public_dns" {
   value = aws_instance.strapi.public_dns
 }
-
