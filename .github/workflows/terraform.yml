@@ -27,4 +27,30 @@ jobs:
           terraform_version: '1.5.7'
 
       - name: Configure AWS credentials
-        uses: aws-ac
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1   # change to your region
+
+      - name: Terraform Init
+        run: |
+          terraform init -input=false
+
+      - name: Terraform Plan
+        env:
+          TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+          TF_VAR_docker_repo: ${{ github.event.inputs.docker_repo }}
+        run: |
+          terraform plan \
+            -var="image_tag=${{ github.event.inputs.image_tag }}" \
+            -var="ssh_public_key=${{ secrets.SSH_PUBLIC_KEY }}" \
+            -var="docker_repo=${{ github.event.inputs.docker_repo }}" \
+            -out=plan.tfplan
+
+      - name: Terraform Apply
+        env:
+          TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+          TF_VAR_docker_repo: ${{ github.event.inputs.docker_repo }}
+        run: |
+          terraform apply -input=false -auto-approve plan.tfplan
