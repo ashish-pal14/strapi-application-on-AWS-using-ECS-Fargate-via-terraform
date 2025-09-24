@@ -34,27 +34,34 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Initialize Terraform
-         run: |
+        run: |
           cd terraform
           terraform init -input=false
-        
 
       - name: Terraform plan
-        working-directory: ${{ github.workspace }}/terraform
         run: |
+          cd terraform
+          # Set docker_repo variable
+          DOCKER_REPO="${{ inputs.docker_repo }}"
+          if [ -z "$DOCKER_REPO" ]; then
+            DOCKER_REPO="${{ secrets.DOCKERHUB_USERNAME }}/strapi-app"
+          fi
+
           terraform plan \
             -var="image_tag=${{ inputs.image_tag }}" \
             -var="ssh_public_key=${{ secrets.SSH_PUBLIC_KEY }}" \
-            -var="docker_repo=${{ inputs.docker_repo != '' && inputs.docker_repo || format('%s/%s', env.DOCKERHUB_USERNAME, 'strapi-app') }}" \
+            -var="docker_repo=$DOCKER_REPO" \
             -out=plan.tfplan
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
 
       - name: Terraform apply
-        working-directory: ${{ github.workspace }}/terraform
-        run: terraform apply -input=false -auto-approve plan.tfplan
+        run: |
+          cd terraform
+          terraform apply -input=false -auto-approve plan.tfplan
 
       - name: Print public IP
-        working-directory: ${{ github.workspace }}/terraform
-        run: terraform output -raw public_ip
+        run: |
+          cd terraform
+          terraform output -raw public_ip
 
