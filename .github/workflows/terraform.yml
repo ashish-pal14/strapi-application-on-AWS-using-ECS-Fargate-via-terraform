@@ -30,28 +30,4 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Initialize Terraform
-        working-directory: terraform
-        run: terraform init -input=false -upgrade
-
-      - name: Terraform plan
-        working-directory: terraform
-        run: |
-          terraform plan \
-            -var="image_tag=${{ inputs.image_tag }}" \
-            -var="ssh_public_key=${{ secrets.SSH_PUBLIC_KEY }}" \
-            -var="docker_repo=${{ inputs.docker_repo != '' && inputs.docker_repo || format('%s/%s', env.DOCKERHUB_USERNAME, 'strapi-app') }}" \
-            -out=plan.tfplan
-        env:
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-
-      - name: Terraform apply
-        working-directory: terraform
-        run: terraform apply -input=false -auto-approve plan.tfplan
-
-      - name: Print public IP
-        working-directory: terraform
-        run: terraform output -raw public_ip
