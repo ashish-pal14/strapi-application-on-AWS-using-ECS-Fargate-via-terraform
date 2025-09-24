@@ -1,5 +1,6 @@
 provider "aws" {
   region = var.aws_region
+  version = "~> 6.14"
 }
 
 # get latest Amazon Linux 2 AMI (works across regions)
