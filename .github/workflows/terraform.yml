@@ -31,9 +31,16 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Initialize Terraform
         working-directory: ${{ github.workspace }}/terraform
         run: terraform init -input=false
+
+
 
       - name: Terraform plan
         working-directory: terraform
