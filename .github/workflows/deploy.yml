@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  AWS_REGION: us-east-1
+  AWS_REGION: ap-south-1
   ECR_REPOSITORY: strapi-repo
   ECS_CLUSTER: strapi-cluster
   ECS_SERVICE: strapi-service
