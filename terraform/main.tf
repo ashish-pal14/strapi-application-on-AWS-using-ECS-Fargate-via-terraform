@@ -1,16 +1,12 @@
 provider "aws" {
-  region = var.region
+  region = "us-east-1"
 }
 
-# Use default VPC and subnets
-data "aws_vpc" "default" {
-  default = true
-}
-
-data "aws_subnets" "default" {
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.default.id]
+terraform {
+  backend "s3" {
+    bucket = "your-tf-state-bucket"
+    key    = "strapi/terraform.tfstate"
+    region = "us-east-1"
   }
 }
 
